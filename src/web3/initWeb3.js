@@ -54,19 +54,17 @@ export function setProviderDefault() {
 
 export function setProvider(realProvider) {
     web3 = new Web3(realProvider);
-    if (!web3.givenProvider) {
-        web3.givenProvider = {
-            selectedAddress: defaultProvider.selectedAddress,
-            chainId: defaultProvider.chainId
-        }
+    console.log('web3.givenProvider', web3.currentProvider, realProvider)
+    if (!web3.currentProvider) {
+        web3.currentProvider.selectedAddress = defaultProvider.selectedAddress
+        web3.currentProvider.chainId = defaultProvider.chainId
     }
 }
 
 let cache = {}
 export function nweContract( address, abi ) {
     const web3 = initWeb3()
-    const owner = web3.givenProvider.selectedAddress
-
+    const owner = web3.currentProvider.selectedAddress
     let contract = cache[address]
     if ( cache[address] ) {
         if (  contract.options.from !== owner ) {

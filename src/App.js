@@ -1,8 +1,6 @@
-import WalletConnectProvider from "@walletconnect/web3-provider";
-
 import {ThemeProvider, createGlobalStyle} from 'styled-components'
 
-import './vConsole.js'
+// import './vConsole.js'
 
 import theme from './theme'
 

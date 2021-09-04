@@ -1,4 +1,4 @@
-import {useMemo, useEffect, useState, createContext, useContext, useRef } from 'react'
+import {useMemo, useEffect, useState, createContext, useContext, useRef, useCallback } from 'react'
 
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
@@ -9,12 +9,19 @@ import {
     initWeb3,
     BN
 } from './initWeb3'
-import { useCallback } from 'react';
+
+import {
+    PROXY_ZERO_ADDRESS,
+    // DEFAULT_PRC,
+    DEFAULT_CHAIN_ID
+} from './config'
+
+export * from './erc20'
+export * from './multiCall'
+export * from './sendTransaction'
 
 export * from './config'
 export {BN}
-
-
 
 const CHANG_TYPE = {
     1: 'main',
@@ -99,8 +106,8 @@ const walletConnectRpc = {
 }
 
 function useWeb3Provider(defaultChian) {
-    const [chainId, setId] = useState(defaultChian.chainId*1)
-    const [account, setAccount] = useState(defaultChian.selectedAddress)
+    const [chainId, setId] = useState((defaultChian.chainId || DEFAULT_CHAIN_ID)*1)
+    const [account, setAccount] = useState(defaultChian.selectedAddress || PROXY_ZERO_ADDRESS)
     // 没有安装钱包
     const [connected, setConnected] = useState( null )
     // 钱包已安装，但没有解锁
@@ -120,6 +127,9 @@ function useWeb3Provider(defaultChian) {
         else if ( web3.currentProvider.isMetaMask ) {
             walletName = 'metamask'
         }
+        else if (  web3.currentProvider.bridge ) {
+            walletName = 'WalletConnect'
+        }
         setConnected(walletName)
         return walletName
     },[])
@@ -130,12 +140,17 @@ function useWeb3Provider(defaultChian) {
         const web3 = initWeb3()
         
         // 有些版本 loaded 前获取不到 chainId
-        // const account1 = web3.givenProvider.selectedAddress
-        // const chainId1 = web3.givenProvider.chainId
-        // setAccount(account1)
-        // setUnlock(!!account1)
-        // setWalletName()
-        // setId(chainId1*1)
+        
+        // if ( web3.givenProvider.selectedAddress ) {
+        //     const account1 = web3.givenProvider.selectedAddress
+        //     const chainId1 = web3.givenProvider.chainId
+        //     setAccount(account1)
+        //     setUnlock(!!account1)
+        //     setWalletName()
+        //     setId(chainId1*1)
+        // } else {
+            
+        // }
         Promise.all([
             web3.eth.getChainId(),
             web3.eth.getAccounts()
@@ -146,6 +161,7 @@ function useWeb3Provider(defaultChian) {
             setWalletName()
             setUnlock(!!account)
         })
+       
         try {
             web3.currentProvider.on("chainChanged", (chainId) => {
                 setId(chainId * 1)
@@ -179,10 +195,12 @@ function useWeb3Provider(defaultChian) {
                 accounts,
                 chainId,
             } = provider
+
             setProvider(provider)
+
             setId(chainId*1)
             setAccount(accounts[0])
-            setConnected('WalletConnect')
+            setConnected()
             setUnlock(!!accounts[0])
             // Subscribe to session disconnection
             provider.on("disconnect", () => {
