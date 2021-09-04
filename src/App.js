@@ -1,24 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import WalletConnectProvider from "@walletconnect/web3-provider";
+
+import {ThemeProvider, createGlobalStyle} from 'styled-components'
+
+import './vConsole.js'
+
+import theme from './theme'
+
+import Web3Provider from './web3'
+
+import Index from './pages'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Web3Provider>
+        <Index />
+      </Web3Provider>
+      
+    </ThemeProvider>
   );
 }
 
